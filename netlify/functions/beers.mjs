@@ -2,19 +2,22 @@ import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
 
 const entriesStore = () =>
-    getStore("beer1000-entries");
+  getStore("beer1000-entries");
 
 const imagesStore = () =>
-    getStore("beer1000-images");
+  getStore("beer1000-images");
 
 function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store"
+  return new Response(
+    JSON.stringify(data),
+    {
+      status,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "no-store"
+      }
     }
-  });
+  );
 }
 
 function validateEntry(data) {
@@ -28,17 +31,29 @@ function validateEntry(data) {
 
   const volume = Number(data.volumeLiters);
 
-  if (!Number.isFinite(volume) || volume <= 0 || volume > 10) {
+  if (
+    !Number.isFinite(volume) ||
+    volume <= 0 ||
+    volume > 10
+  ) {
     return "Volume invalide.";
   }
 
   const abv = Number(data.abv);
 
-  if (!Number.isFinite(abv) || abv < 0 || abv > 30) {
+  if (
+    !Number.isFinite(abv) ||
+    abv < 0 ||
+    abv > 30
+  ) {
     return "Degré d'alcool invalide.";
   }
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data.date || ""))) {
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      String(data.date || "")
+    )
+  ) {
     return "Date invalide.";
   }
 
@@ -46,10 +61,13 @@ function validateEntry(data) {
 }
 
 async function readJSON(store, key) {
-  const result = await store.get(key, {
-    type: "json",
-    consistency: "strong"
-  });
+  const result = await store.get(
+    key,
+    {
+      type: "json",
+      consistency: "strong"
+    }
+  );
 
   if (!result) {
     return null;
@@ -61,29 +79,46 @@ async function readJSON(store, key) {
 async function getAllEntries() {
   const store = entriesStore();
 
-  const { blobs } = await store.list();
+  const { blobs } =
+    await store.list({
+      consistency: "strong"
+    });
 
-  const entries = await Promise.all(
-    blobs.map(async blob => {
-      try {
-        return await readJSON(store, blob.key);
-      } catch (error) {
-        console.error("Erreur lecture entrée", blob.key, error);
-        return null;
-      }
-    })
-  );
+  const entries =
+    await Promise.all(
+      blobs.map(
+        async blob => {
+          try {
+            return await readJSON(
+              store,
+              blob.key
+            );
+          } catch (error) {
+            console.error(
+              "Erreur lecture entrée",
+              blob.key,
+              error
+            );
+
+            return null;
+          }
+        }
+      )
+    );
 
   return entries
     .filter(Boolean)
-    .sort((a, b) => {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt) -
+        new Date(a.createdAt)
+    );
 }
 
 export default async function handler(request) {
   try {
-    const url = new URL(request.url);
+    const url =
+      new URL(request.url);
 
     /* ==========================
        IMAGE
@@ -93,39 +128,57 @@ export default async function handler(request) {
       request.method === "GET" &&
       url.searchParams.get("image") === "1"
     ) {
-      const id = url.searchParams.get("id");
+      const id =
+        url.searchParams.get("id");
 
       if (!id) {
-        return new Response("ID manquant", {
-          status: 400
-        });
+        return new Response(
+          "ID manquant",
+          {
+            status: 400
+          }
+        );
       }
 
-      const result = await imagesStore().get(id, {
-  type: "arrayBuffer",
-  consistency: "strong"
-});
+      const result =
+        await imagesStore().get(
+          id,
+          {
+            type: "arrayBuffer",
+            consistency: "strong"
+          }
+        );
 
-if (!result) {
-  return new Response("Image introuvable", {
-    status: 404
-  });
-}
+      if (!result) {
+        return new Response(
+          "Image introuvable",
+          {
+            status: 404
+          }
+        );
+      }
 
-return new Response(result, {
-  status: 200,
-  headers: {
-    "Content-Type": "image/jpeg",
-    "Cache-Control": "public, max-age=86400"
-  }
-});
+      return new Response(
+        result,
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "image/jpeg",
+            "Cache-Control": "public, max-age=86400"
+          }
+        }
+      );
+    }
 
     /* ==========================
        LISTE
     ========================== */
 
-    if (request.method === "GET") {
-      const entries = await getAllEntries();
+    if (
+      request.method === "GET"
+    ) {
+      const entries =
+        await getAllEntries();
 
       return json({
         entries
@@ -136,44 +189,62 @@ return new Response(result, {
        AJOUT / MODIFICATION
     ========================== */
 
-    if (request.method === "POST") {
-      const data = await request.json();
+    if (
+      request.method === "POST"
+    ) {
+      const data =
+        await request.json();
 
-      if (data.action === "create") {
-        const validationError = validateEntry(data);
+      /* ==========================
+         AJOUT
+      ========================== */
+
+      if (
+        data.action === "create"
+      ) {
+        const validationError =
+          validateEntry(data);
 
         if (validationError) {
           return json(
             {
-              error: validationError
+              error:
+                validationError
             },
             400
           );
         }
 
-        const imageData = String(data.imageData || "");
+        const imageData =
+          String(
+            data.imageData || ""
+          );
 
-        const match = imageData.match(
-          /^data:image\/[^;]+;base64,(.+)$/
-        );
+        const match =
+          imageData.match(
+            /^data:image\/[^;]+;base64,(.+)$/
+          );
 
         if (!match) {
           return json(
             {
-              error: "Photo invalide."
+              error:
+                "Photo invalide."
             },
             400
           );
         }
 
-        const bytes = Buffer.from(match[1], "base64");
+        const bytes =
+          Buffer.from(
+            match[1],
+            "base64"
+          );
 
-        /*
-        IMPORTANT :
-        Netlify limite le payload total.
-        On garde une marge de sécurité.
-        */
-        if (bytes.length > 3_500_000) {
+        if (
+          bytes.length >
+          3_500_000
+        ) {
           return json(
             {
               error:
@@ -183,31 +254,61 @@ return new Response(result, {
           );
         }
 
-        const id = randomUUID();
-        const now = new Date().toISOString();
+        const id =
+          randomUUID();
+
+        const now =
+          new Date()
+            .toISOString();
 
         const entry = {
           id,
-          beerName: String(data.beerName).trim(),
-          drinker: data.drinker,
-          volumeLiters: Number(data.volumeLiters),
-          abv: Number(data.abv),
-          date: data.date,
-          createdAt: now,
-          updatedAt: now
+
+          beerName:
+            String(
+              data.beerName
+            ).trim(),
+
+          drinker:
+            data.drinker,
+
+          volumeLiters:
+            Number(
+              data.volumeLiters
+            ),
+
+          abv:
+            Number(
+              data.abv
+            ),
+
+          date:
+            data.date,
+
+          createdAt:
+            now,
+
+          updatedAt:
+            now
         };
 
-        const imageBlob = new Blob([bytes], {
-          type: "image/jpeg"
-        });
+        /*
+        Enregistrement photo
+        */
 
-        await imagesStore().set(id, imageBlob, {
-          metadata: {
-            contentType: "image/jpeg"
-          }
-        });
+        await imagesStore().set(
+          id,
+          bytes
+        );
 
-        await entriesStore().setJSON(id, entry);
+        /*
+        Enregistrement données
+        */
+
+        await entriesStore().setJSON(
+          id,
+          entry
+        );
 
         return json(
           {
@@ -218,27 +319,39 @@ return new Response(result, {
         );
       }
 
-      if (data.action === "update") {
-        const id = String(data.id || "");
+      /* ==========================
+         MODIFICATION
+      ========================== */
+
+      if (
+        data.action === "update"
+      ) {
+        const id =
+          String(
+            data.id || ""
+          );
 
         if (!id) {
           return json(
             {
-              error: "ID manquant."
+              error:
+                "ID manquant."
             },
             400
           );
         }
 
-        const oldEntry = await readJSON(
-          entriesStore(),
-          id
-        );
+        const oldEntry =
+          await readJSON(
+            entriesStore(),
+            id
+          );
 
         if (!oldEntry) {
           return json(
             {
-              error: "Entrée introuvable."
+              error:
+                "Entrée introuvable."
             },
             404
           );
@@ -246,20 +359,40 @@ return new Response(result, {
 
         const updatedEntry = {
           ...oldEntry,
-          beerName: String(data.beerName || "").trim(),
-          volumeLiters: Number(data.volumeLiters),
-          abv: Number(data.abv),
-          date: data.date,
-          updatedAt: new Date().toISOString()
+
+          beerName:
+            String(
+              data.beerName || ""
+            ).trim(),
+
+          volumeLiters:
+            Number(
+              data.volumeLiters
+            ),
+
+          abv:
+            Number(
+              data.abv
+            ),
+
+          date:
+            data.date,
+
+          updatedAt:
+            new Date()
+              .toISOString()
         };
 
         const validationError =
-          validateEntry(updatedEntry);
+          validateEntry(
+            updatedEntry
+          );
 
         if (validationError) {
           return json(
             {
-              error: validationError
+              error:
+                validationError
             },
             400
           );
@@ -272,13 +405,15 @@ return new Response(result, {
 
         return json({
           success: true,
-          entry: updatedEntry
+          entry:
+            updatedEntry
         });
       }
 
       return json(
         {
-          error: "Action inconnue."
+          error:
+            "Action inconnue."
         },
         400
       );
@@ -288,22 +423,32 @@ return new Response(result, {
        SUPPRESSION
     ========================== */
 
-    if (request.method === "DELETE") {
-      const data = await request.json();
+    if (
+      request.method === "DELETE"
+    ) {
+      const data =
+        await request.json();
 
-      const id = String(data.id || "");
+      const id =
+        String(
+          data.id || ""
+        );
 
       if (!id) {
         return json(
           {
-            error: "ID manquant."
+            error:
+              "ID manquant."
           },
           400
         );
       }
 
-      await entriesStore().delete(id);
-      await imagesStore().delete(id);
+      await entriesStore()
+        .delete(id);
+
+      await imagesStore()
+        .delete(id);
 
       return json({
         success: true
@@ -312,18 +457,25 @@ return new Response(result, {
 
     return json(
       {
-        error: "Méthode HTTP non autorisée."
+        error:
+          "Méthode HTTP non autorisée."
       },
       405
     );
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Erreur beers function :",
+      error
+    );
 
     return json(
       {
         error:
           "Erreur serveur : " +
-          (error?.message || "inconnue")
+          (
+            error?.message ||
+            "inconnue"
+          )
       },
       500
     );
