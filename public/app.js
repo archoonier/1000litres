@@ -360,31 +360,54 @@ function renderStats(person) {
 ========================= */
 
 async function compressImage(file) {
-    if (
-        !file.type.startsWith(
-            "image/"
-        )
-    ) {
+
+    if (!file || !file.type.startsWith("image/")) {
         throw new Error(
             "Le fichier sélectionné n'est pas une image."
         );
     }
 
-    /*
-    Charge l'image.
-    */
-    const bitmap =
-        await createImageBitmap(
-            file
-        );
+    const dataURL = await new Promise(
+        (resolve, reject) => {
 
-    /*
-    1200 px maximum sur le côté
-    le plus long.
+            const reader =
+                new FileReader();
 
-    C'est largement suffisant
-    pour l'affichage dans la galerie.
-    */
+            reader.onload =
+                () => resolve(reader.result);
+
+            reader.onerror =
+                () => reject(
+                    new Error(
+                        "Impossible de lire la photo."
+                    )
+                );
+
+            reader.readAsDataURL(file);
+        }
+    );
+
+    const image = await new Promise(
+        (resolve, reject) => {
+
+            const img =
+                new Image();
+
+            img.onload =
+                () => resolve(img);
+
+            img.onerror =
+                () => reject(
+                    new Error(
+                        "Impossible de charger la photo."
+                    )
+                );
+
+            img.src =
+                dataURL;
+        }
+    );
+
     const maxSize =
         1200;
 
@@ -393,8 +416,8 @@ async function compressImage(file) {
             1,
             maxSize /
             Math.max(
-                bitmap.width,
-                bitmap.height
+                image.naturalWidth,
+                image.naturalHeight
             )
         );
 
@@ -407,7 +430,7 @@ async function compressImage(file) {
         Math.max(
             1,
             Math.round(
-                bitmap.width *
+                image.naturalWidth *
                 scale
             )
         );
@@ -416,15 +439,13 @@ async function compressImage(file) {
         Math.max(
             1,
             Math.round(
-                bitmap.height *
+                image.naturalHeight *
                 scale
             )
         );
 
     const context =
-        canvas.getContext(
-            "2d"
-        );
+        canvas.getContext("2d");
 
     if (!context) {
         throw new Error(
@@ -433,29 +454,15 @@ async function compressImage(file) {
     }
 
     context.drawImage(
-        bitmap,
+        image,
         0,
         0,
         canvas.width,
         canvas.height
     );
 
-    /*
-    On libère la bitmap si
-    le navigateur le permet.
-    */
-    if (
-        typeof bitmap.close ===
-        "function"
-    ) {
-        bitmap.close();
-    }
-
-    /*
-    JPEG qualité de départ 70 %.
-    */
     let quality =
-        0.70;
+        0.72;
 
     let result =
         canvas.toDataURL(
@@ -463,20 +470,15 @@ async function compressImage(file) {
             quality
         );
 
-    /*
-    Si l'image reste volumineuse,
-    on réduit progressivement
-    la qualité.
-    */
-
     while (
         result.length >
             2_500_000
         &&
         quality > 0.35
     ) {
+
         quality -=
-            0.10;
+            0.08;
 
         result =
             canvas.toDataURL(
@@ -485,18 +487,12 @@ async function compressImage(file) {
             );
     }
 
-    /*
-    Sécurité supplémentaire
-    pour éviter les payloads
-    trop gros vers Netlify.
-    */
-
     if (
         result.length >
         3_500_000
     ) {
         throw new Error(
-            "La photo reste trop volumineuse. Essaie une photo plus petite."
+            "La photo est trop volumineuse."
         );
     }
 
