@@ -702,40 +702,40 @@ function setupUploadForm() {
                     ""
                 );
 
-                await requestAPI({
-                    method:
-                        "POST",
+               const result = await requestAPI({
+    method:
+        "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+    headers: {
+        "Content-Type":
+            "application/json"
+    },
 
-                    body:
-                        JSON.stringify({
-                            action:
-                                "create",
+    body:
+        JSON.stringify({
+            action:
+                "create",
 
-                            beerName:
-                                $("#beer-name")
-                                    .value
-                                    .trim(),
+            beerName:
+                $("#beer-name")
+                    .value
+                    .trim(),
 
-                            drinker:
-                                $("#drinker")
-                                    .value,
+            drinker:
+                $("#drinker")
+                    .value,
 
-                            volumeLiters,
+            volumeLiters,
 
-                            abv,
+            abv,
 
-                            date:
-                                $("#date")
-                                    .value,
+            date:
+                $("#date")
+                    .value,
 
-                            imageData
-                        })
-                });
+            imageData
+        })
+});
 
                 /*
                 Reset
@@ -766,20 +766,30 @@ function setupUploadForm() {
                             10
                         );
 
-                showNotice(
-                    $("#form-notice"),
-                    "Bière ajoutée ! 🍺",
-                    "success"
-                );
+               showNotice(
+    $("#form-notice"),
+    "Bière ajoutée ! 🍺",
+    "success"
+);
 
-                /*
-                Recharge immédiatement
-                les données.
-                */
+/*
+Ajoute immédiatement la bière
+dans les données locales.
 
-                await loadEntries();
+Pas besoin d'attendre que Netlify
+relise la base pour actualiser
+l'interface.
+*/
 
-                renderHomeStats();
+if (result.entry) {
+    allEntries.unshift(
+        result.entry
+    );
+}
+
+updateProgress();
+
+renderHomeStats();
             }
 
             catch (error) {
