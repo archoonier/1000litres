@@ -42,40 +42,49 @@ function validateEntry(data) {
   return null;
 }
 
+async function readJSON(store, key) {
+  const result = await store.get(key, {
+    type: "json",
+    consistency: "strong"
+  });
+
+  if (!result) {
+    return null;
+  }
+
+  return result.data;
+}
+
 async function getAllEntries() {
   const store = entriesStore();
 
   const { blobs } = await store.list();
 
-  const entries = [];
+  const entries = await Promise.all(
+    blobs.map(async blob => {
+      try {
+        return await readJSON(store, blob.key);
+      } catch (error) {
+        console.error("Erreur lecture entrée", blob.key, error);
+        return null;
+      }
+    })
+  );
 
-  for (const blob of blobs) {
-    const entry = await store.get(blob.key, {
-      type: "json",
-      consistency: "strong"
+  return entries
+    .filter(Boolean)
+    .sort((a, b) => {
+      return new Date(b.createdAt) - new Date(a.createdAt);
     });
-
-    if (entry) {
-      entries.push(entry);
-    }
-  }
-
-  entries.sort((a, b) => {
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  });
-
-  return entries;
 }
 
 export default async function handler(request) {
   try {
     const url = new URL(request.url);
 
-    /*
-    ==========================
-    RÉCUPÉRATION D'UNE IMAGE
-    ==========================
-    */
+    /* ==========================
+       IMAGE
+    ========================== */
 
     if (
       request.method === "GET" &&
@@ -89,31 +98,30 @@ export default async function handler(request) {
         });
       }
 
-      const image = await imagesStore().get(id, {
+      const result = await imagesStore().get(id, {
         type: "arrayBuffer",
         consistency: "strong"
       });
 
-      if (!image) {
+      if (!result) {
         return new Response("Image introuvable", {
           status: 404
         });
       }
 
-      return new Response(image, {
+      return new Response(result.data, {
         status: 200,
         headers: {
-          "Content-Type": "image/jpeg",
+          "Content-Type":
+            result.metadata?.contentType || "image/jpeg",
           "Cache-Control": "public, max-age=86400"
         }
       });
     }
 
-    /*
-    ==========================
-    LISTE DES BIÈRES
-    ==========================
-    */
+    /* ==========================
+       LISTE
+    ========================== */
 
     if (request.method === "GET") {
       const entries = await getAllEntries();
@@ -123,18 +131,12 @@ export default async function handler(request) {
       });
     }
 
-    /*
-    ==========================
-    AJOUT / MODIFICATION
-    ==========================
-    */
+    /* ==========================
+       AJOUT / MODIFICATION
+    ========================== */
 
     if (request.method === "POST") {
       const data = await request.json();
-
-      /*
-      AJOUT
-      */
 
       if (data.action === "create") {
         const validationError = validateEntry(data);
@@ -166,22 +168,21 @@ export default async function handler(request) {
         const bytes = Buffer.from(match[1], "base64");
 
         /*
-        Sécurité supplémentaire :
-        la photo est déjà réduite par le navigateur,
-        mais on limite malgré tout à 5 Mo.
+        IMPORTANT :
+        Netlify limite le payload total.
+        On garde une marge de sécurité.
         */
-
-        if (bytes.length > 5_000_000) {
+        if (bytes.length > 3_500_000) {
           return json(
             {
-              error: "La photo est trop volumineuse."
+              error:
+                "La photo reste trop volumineuse après compression."
             },
             413
           );
         }
 
         const id = randomUUID();
-
         const now = new Date().toISOString();
 
         const entry = {
@@ -195,35 +196,17 @@ export default async function handler(request) {
           updatedAt: now
         };
 
-        /*
-        Stockage photo
-        */
+        const imageBlob = new Blob([bytes], {
+          type: "image/jpeg"
+        });
 
-        const imageBlob = new Blob(
-          [bytes],
-          {
-            type: "image/jpeg"
+        await imagesStore().set(id, imageBlob, {
+          metadata: {
+            contentType: "image/jpeg"
           }
-        );
+        });
 
-        await imagesStore().set(
-          id,
-          imageBlob,
-          {
-            metadata: {
-              contentType: "image/jpeg"
-            }
-          }
-        );
-
-        /*
-        Stockage informations
-        */
-
-        await entriesStore().setJSON(
-          id,
-          entry
-        );
+        await entriesStore().setJSON(id, entry);
 
         return json(
           {
@@ -233,10 +216,6 @@ export default async function handler(request) {
           201
         );
       }
-
-      /*
-      MODIFICATION
-      */
 
       if (data.action === "update") {
         const id = String(data.id || "");
@@ -250,12 +229,9 @@ export default async function handler(request) {
           );
         }
 
-        const oldEntry = await entriesStore().get(
-          id,
-          {
-            type: "json",
-            consistency: "strong"
-          }
+        const oldEntry = await readJSON(
+          entriesStore(),
+          id
         );
 
         if (!oldEntry) {
@@ -269,22 +245,11 @@ export default async function handler(request) {
 
         const updatedEntry = {
           ...oldEntry,
-
-          beerName: String(
-            data.beerName || ""
-          ).trim(),
-
-          volumeLiters:
-            Number(data.volumeLiters),
-
-          abv:
-            Number(data.abv),
-
-          date:
-            data.date,
-
-          updatedAt:
-            new Date().toISOString()
+          beerName: String(data.beerName || "").trim(),
+          volumeLiters: Number(data.volumeLiters),
+          abv: Number(data.abv),
+          date: data.date,
+          updatedAt: new Date().toISOString()
         };
 
         const validationError =
@@ -318,11 +283,9 @@ export default async function handler(request) {
       );
     }
 
-    /*
-    ==========================
-    SUPPRESSION
-    ==========================
-    */
+    /* ==========================
+       SUPPRESSION
+    ========================== */
 
     if (request.method === "DELETE") {
       const data = await request.json();
@@ -339,7 +302,6 @@ export default async function handler(request) {
       }
 
       await entriesStore().delete(id);
-
       await imagesStore().delete(id);
 
       return json({
@@ -353,9 +315,7 @@ export default async function handler(request) {
       },
       405
     );
-  }
-
-  catch (error) {
+  } catch (error) {
     console.error(error);
 
     return json(
