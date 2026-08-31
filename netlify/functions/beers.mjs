@@ -1,8 +1,11 @@
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
 
-const entriesStore = () => getStore("beer1000-entries");
-const imagesStore = () => getStore("beer1000-images");
+const entriesStore = () =>
+    getStore("beer1000-entries");
+
+const imagesStore = () =>
+    getStore("beer1000-images");
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -52,7 +55,7 @@ async function readJSON(store, key) {
     return null;
   }
 
-  return result.data;
+  return result;
 }
 
 async function getAllEntries() {
@@ -99,25 +102,23 @@ export default async function handler(request) {
       }
 
       const result = await imagesStore().get(id, {
-        type: "arrayBuffer",
-        consistency: "strong"
-      });
+  type: "arrayBuffer",
+  consistency: "strong"
+});
 
-      if (!result) {
-        return new Response("Image introuvable", {
-          status: 404
-        });
-      }
+if (!result) {
+  return new Response("Image introuvable", {
+    status: 404
+  });
+}
 
-      return new Response(result.data, {
-        status: 200,
-        headers: {
-          "Content-Type":
-            result.metadata?.contentType || "image/jpeg",
-          "Cache-Control": "public, max-age=86400"
-        }
-      });
-    }
+return new Response(result, {
+  status: 200,
+  headers: {
+    "Content-Type": "image/jpeg",
+    "Cache-Control": "public, max-age=86400"
+  }
+});
 
     /* ==========================
        LISTE
