@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+>
+
+<title>
+    Stats Léo — 1000 Litres
+</title>
+
+<link
+    rel="stylesheet"
+    href="/style.css"
+>
+
+</head>
+
+
+<body data-page="stats-leo">
+
+
+<div class="site">
+
+
+<header>
+
+<div class="logo">
+    ★ 1000 LITRES ★
+</div>
+
+<div class="tagline">
+    Nicolas + Léo contre
+    une quantité parfaitement
+    déraisonnable de bière
+</div>
+
+</header>
+
+
+<nav>
+
+<a href="/">
+    ACCUEIL
+</a>
+
+<a href="/stats-nicolas.html">
+    STATS NICOLAS
+</a>
+
+<a
+    class="active"
+    href="/stats-leo.html"
+>
+    STATS LÉO
+</a>
+
+<a href="/nicolas.html">
+    BIÈRES NICOLAS
+</a>
+
+<a href="/leo.html">
+    BIÈRES LÉO
+</a>
+
+</nav>
+
+
+<div class="marquee">
+
+<span>
+    🍺 LES STATISTIQUES
+    OFFICIELLES DE LA QUÊTE
+    DES 1000 LITRES ★
+</span>
+
+</div>
+
+
+<main class="content">
+
+<div
+    id="global-error"
+    hidden
+></div>
+
+
+<section class="panel">
+
+<h2 class="panel-title">
+    ★ OBJECTIF :
+    1000 LITRES ★
+</h2>
+
+
+<div class="panel-body">
+
+<div class="progress-meta">
+
+<span
+    class="progress-big"
+    data-total-liters
+>
+    0 L
+</span>
+
+<span>
+
+<span data-progress-percent>
+    0 %
+</span>
+
+accompli
+
+</span>
+
+</div>
+
+
+<div class="progress-shell">
+
+<div
+    class="progress-fill"
+    data-progress
+></div>
+
+</div>
+
+
+<div class="progress-markers">
+
+<span>0 L</span>
+<span>250 L</span>
+<span>500 L</span>
+<span>750 L</span>
+<span>1000 L</span>
+
+</div>
+
+
+<p class="goal-note">
+
+Encore
+
+<strong data-remaining>
+    1000 L
+</strong>
+
+avant les 1000 litres.
+
+</p>
+
+
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<h2 class="panel-title">
+    STATISTIQUES —
+    LÉO
+</h2>
+
+
+<div class="panel-body">
+
+<div class="profile-wrap">
+
+
+<div>
+
+<img
+    class="profile-photo"
+    src="/leo.png"
+    alt="Léo"
+>
+
+<div class="nameplate">
+    Léo
+</div>
+
+</div>
+
+
+<div class="stats-grid">
+
+
+<div class="stat">
+
+<div
+    class="value"
+    id="stat-count"
+>
+    0
+</div>
+
+<div class="label">
+    BIÈRES BUES
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div
+    class="value"
+    id="stat-total"
+>
+    0 L
+</div>
+
+<div class="label">
+    VOLUME TOTAL
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div
+    class="value"
+    id="stat-volume"
+>
+    —
+</div>
+
+<div class="label">
+    VOLUME MOYEN
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div
+    class="value"
+    id="stat-abv"
+>
+    —
+</div>
+
+<div class="label">
+    DEGRÉ MOYEN
+</div>
+
+</div>
+
+
+<div
+    class="stat"
+    style="
+    grid-column:
+    1 / -1;
+    "
+>
+
+<div
+    class="value"
+    id="stat-favorite"
+
+    style="
+    font-size:24px;
+    "
+>
+    —
+</div>
+
+<div class="label">
+    BIÈRE PRÉFÉRÉE
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+</main>
+
+
+<footer>
+
+1000 LITRES
+•
+Nicolas & Léo
+
+</footer>
+
+
+</div>
+
+
+<script src="/app.js"></script>
+
+
+</body>
+
+</html>

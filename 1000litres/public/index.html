@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>
+        1000 Litres
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/style.css"
+    >
+
+</head>
+
+<body data-page="home">
+
+<div class="site">
+
+    <header>
+
+        <div class="logo">
+            ★ 1000 LITRES ★
+        </div>
+
+        <div class="tagline">
+            Nicolas + Léo contre
+            une quantité parfaitement
+            déraisonnable de bière
+        </div>
+
+    </header>
+
+
+    <nav>
+
+        <a
+            class="active"
+            href="/"
+        >
+            ACCUEIL
+        </a>
+
+        <a href="/stats-nicolas.html">
+            STATS NICOLAS
+        </a>
+
+        <a href="/stats-leo.html">
+            STATS LÉO
+        </a>
+
+        <a href="/nicolas.html">
+            BIÈRES NICOLAS
+        </a>
+
+        <a href="/leo.html">
+            BIÈRES LÉO
+        </a>
+
+    </nav>
+
+
+    <div class="marquee">
+
+        <span>
+
+            🍺 Bienvenue dans les
+            archives officielles de
+            la quête des 1000 litres !
+
+            &nbsp; ★ &nbsp;
+
+            Une bière bue =
+            une bière recensée
+
+            &nbsp; ★ &nbsp;
+
+            Nicolas + Léo VS 1000 L
+
+            &nbsp; ★ &nbsp;
+
+        </span>
+
+    </div>
+
+
+    <main class="content">
+
+        <div
+            id="global-error"
+            hidden
+        ></div>
+
+
+        <!-- PROGRESSION -->
+
+        <section class="panel">
+
+            <h2 class="panel-title">
+                ★ OBJECTIF :
+                1000 LITRES ★
+            </h2>
+
+            <div class="panel-body">
+
+                <div
+                    class="progress-meta"
+                >
+
+                    <span
+                        class="progress-big"
+                        data-total-liters
+                    >
+                        0 L
+                    </span>
+
+                    <span>
+
+                        <span
+                            data-progress-percent
+                        >
+                            0,00 %
+                        </span>
+
+                        accompli
+
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="progress-shell"
+                >
+
+                    <div
+                        class="progress-fill"
+                        data-progress
+                    ></div>
+
+                </div>
+
+
+                <div
+                    class="progress-markers"
+                >
+
+                    <span>0 L</span>
+                    <span>250 L</span>
+                    <span>500 L</span>
+                    <span>750 L</span>
+                    <span>1000 L</span>
+
+                </div>
+
+
+                <p class="goal-note">
+
+                    Encore
+
+                    <strong
+                        data-remaining
+                    >
+                        1000 L
+                    </strong>
+
+                    avant la gloire
+                    éternelle.
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <div class="home-grid">
+
+
+            <!-- AJOUT BIÈRE -->
+
+            <section class="panel">
+
+                <h2 class="panel-title">
+                    + AJOUTER UNE BIÈRE
+                </h2>
+
+                <div class="panel-body">
+
+                    <form id="beer-form">
+
+
+                        <div class="upload-zone">
+
+                            <input
+                                type="file"
+                                id="photo"
+                                accept="image/*"
+                                required
+                            >
+
+                            <div
+                                id="photo-hint"
+                                class="upload-hint"
+                            >
+
+                                📷
+
+                                <br>
+
+                                CLIQUE ICI POUR
+                                AJOUTER LA PHOTO
+
+                                <br>
+
+                                <small>
+                                    JPG / PNG /
+                                    photo téléphone
+                                </small>
+
+                            </div>
+
+
+                            <img
+                                id="photo-preview"
+                                alt="Aperçu"
+                                hidden
+                            >
+
+                        </div>
+
+
+                        <hr class="pixel">
+
+
+                        <div class="form-grid">
+
+
+                            <div class="field">
+
+                                <label for="drinker">
+                                    Qui boit ?
+                                </label>
+
+                                <select
+                                    id="drinker"
+                                    required
+                                >
+
+                                    <option value="Nicolas">
+                                        Nicolas
+                                    </option>
+
+                                    <option value="Léo">
+                                        Léo
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="field">
+
+                                <label for="date">
+                                    Date
+                                </label>
+
+                                <input
+                                    id="date"
+                                    type="date"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div
+                                class="field full"
+                            >
+
+                                <label for="beer-name">
+                                    Nom de la bière
+                                </label>
+
+                                <input
+                                    id="beer-name"
+                                    maxlength="100"
+                                    placeholder="Ex : Chouffe Blonde"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="field">
+
+                                <label for="volume">
+                                    Volume
+                                </label>
+
+                                <div
+                                    style="
+                                    display:flex;
+                                    "
+                                >
+
+                                    <input
+                                        id="volume"
+                                        type="number"
+                                        min="0.01"
+                                        step="0.01"
+                                        value="33"
+                                        required
+
+                                        style="
+                                        flex:1;
+                                        min-width:0;
+                                        "
+                                    >
+
+                                    <select
+                                        id="volume-unit"
+                                    >
+
+                                        <option value="cl">
+                                            cL
+                                        </option>
+
+                                        <option value="ml">
+                                            mL
+                                        </option>
+
+                                        <option value="l">
+                                            L
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="field">
+
+                                <label for="abv">
+                                    Degré d'alcool
+                                    (% vol.)
+                                </label>
+
+                                <input
+                                    id="abv"
+                                    type="number"
+                                    min="0"
+                                    max="30"
+                                    step="0.1"
+                                    placeholder="5.5"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="form-notice"
+                            hidden
+                        ></div>
+
+
+                        <div class="actions">
+
+                            <button
+                                id="submit-beer"
+                                type="submit"
+                            >
+                                AJOUTER LA BIÈRE
+                            </button>
+
+                        </div>
+
+
+                    </form>
+
+                </div>
+
+            </section>
+
+
+            <!-- MINI STATS -->
+
+            <aside>
+
+                <div class="side-card">
+
+                    <h3
+                        style="
+                        margin-top:0;
+                        text-align:center;
+                        "
+                    >
+                        MINI TABLEAU
+                        DE BORD
+                    </h3>
+
+
+                    <div
+                        class="counter-list"
+                    >
+
+                        <div class="counter">
+
+                            Nicolas
+
+                            <b id="home-nicolas">
+                                0 L
+                            </b>
+
+                        </div>
+
+
+                        <div class="counter">
+
+                            Léo
+
+                            <b id="home-leo">
+                                0 L
+                            </b>
+
+                        </div>
+
+
+                        <div class="counter">
+
+                            Bières recensées
+
+                            <b id="home-count">
+                                0
+                            </b>
+
+                        </div>
+
+
+                        <div class="counter">
+
+                            Dernière bière
+
+                            <b
+                                id="home-last"
+                                style="
+                                font-size:18px;
+                                "
+                            >
+                                —
+                            </b>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+
+        </div>
+
+    </main>
+
+
+    <footer>
+
+        1000 LITRES
+        •
+        Nicolas & Léo
+        •
+        site artisanal
+        certifié très internet
+
+    </footer>
+
+
+</div>
+
+
+<script src="/app.js"></script>
+
+</body>
+
+</html>

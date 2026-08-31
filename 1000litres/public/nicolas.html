@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+>
+
+<title>
+    Bières Nicolas — 1000 Litres
+</title>
+
+<link
+    rel="stylesheet"
+    href="/style.css"
+>
+
+</head>
+
+
+<body data-page="nicolas">
+
+
+<div class="site">
+
+
+<header>
+
+<div class="logo">
+    ★ 1000 LITRES ★
+</div>
+
+<div class="tagline">
+    Nicolas + Léo contre
+    une quantité parfaitement
+    déraisonnable de bière
+</div>
+
+</header>
+
+
+<nav>
+
+<a href="/">
+    ACCUEIL
+</a>
+
+<a href="/stats-nicolas.html">
+    STATS NICOLAS
+</a>
+
+<a href="/stats-leo.html">
+    STATS LÉO
+</a>
+
+<a
+    class="active"
+    href="/nicolas.html"
+>
+    BIÈRES NICOLAS
+</a>
+
+<a href="/leo.html">
+    BIÈRES LÉO
+</a>
+
+</nav>
+
+
+<div class="marquee">
+
+<span>
+    🍺 ARCHIVES PERSONNELLES
+    DE NICOLAS
+    ★ LES PREUVES SONT ICI ★
+</span>
+
+</div>
+
+
+<main class="content">
+
+<div
+    id="global-error"
+    hidden
+></div>
+
+
+<section class="panel">
+
+<h2 class="panel-title">
+    ★ OBJECTIF :
+    1000 LITRES ★
+</h2>
+
+<div class="panel-body">
+
+<div class="progress-meta">
+
+<span
+    class="progress-big"
+    data-total-liters
+>
+    0 L
+</span>
+
+<span>
+
+<span data-progress-percent>
+    0 %
+</span>
+
+accompli
+
+</span>
+
+</div>
+
+
+<div class="progress-shell">
+
+<div
+    class="progress-fill"
+    data-progress
+></div>
+
+</div>
+
+
+<div class="progress-markers">
+
+<span>0 L</span>
+<span>250 L</span>
+<span>500 L</span>
+<span>750 L</span>
+<span>1000 L</span>
+
+</div>
+
+
+<p class="goal-note">
+
+Encore
+
+<strong data-remaining>
+    1000 L
+</strong>
+
+avant les 1000 litres.
+
+</p>
+
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<h2 class="panel-title">
+    ARCHIVES DES BIÈRES —
+    NICOLAS
+</h2>
+
+
+<div class="panel-body">
+
+<p>
+    Toutes les bières de Nicolas
+    sont recensées ici.
+    Les informations peuvent être
+    modifiées ou supprimées.
+</p>
+
+
+<div
+    id="gallery"
+    class="gallery"
+>
+
+<div class="empty">
+    CHARGEMENT...
+</div>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+</main>
+
+
+<footer>
+
+1000 LITRES
+•
+Nicolas & Léo
+
+</footer>
+
+
+</div>
+
+
+
+<!-- =====================
+     MODALE MODIFICATION
+===================== -->
+
+<div
+    class="modal"
+    id="edit-modal"
+>
+
+<div class="modal-card">
+
+
+<div class="modal-header">
+
+<span>
+    MODIFIER L'ENTRÉE
+</span>
+
+<button
+    type="button"
+    id="close-modal"
+>
+    X
+</button>
+
+</div>
+
+
+<div class="modal-body">
+
+
+<form id="edit-form">
+
+
+<input
+    type="hidden"
+    id="edit-id"
+>
+
+
+<div class="form-grid">
+
+
+<div
+    class="field full"
+>
+
+<label for="edit-name">
+    Nom de la bière
+</label>
+
+<input
+    id="edit-name"
+    required
+>
+
+</div>
+
+
+<div class="field">
+
+<label for="edit-volume">
+    Volume (cL)
+</label>
+
+<input
+    id="edit-volume"
+    type="number"
+    min="0.1"
+    step="0.1"
+    required
+>
+
+</div>
+
+
+<div class="field">
+
+<label for="edit-abv">
+    Degré (% vol.)
+</label>
+
+<input
+    id="edit-abv"
+    type="number"
+    min="0"
+    max="30"
+    step="0.1"
+    required
+>
+
+</div>
+
+
+<div
+    class="field full"
+>
+
+<label for="edit-date">
+    Date
+</label>
+
+<input
+    id="edit-date"
+    type="date"
+    required
+>
+
+</div>
+
+
+</div>
+
+
+<div
+    id="edit-notice"
+    hidden
+></div>
+
+
+<div class="actions">
+
+<button type="submit">
+    ENREGISTRER
+</button>
+
+</div>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+<script src="/app.js"></script>
+
+
+</body>
+
+</html>
